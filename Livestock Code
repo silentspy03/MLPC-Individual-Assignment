@@ -1,0 +1,646 @@
+### Importing the required libraries
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+
+### Loading the dataset using pandas library
+
+df1 = pd.read_csv('horseasses-population-in-nepal-by-district.csv')
+df2 = pd.read_csv('milk-animals-and-milk-production-in-nepal-by-district.csv')
+df3 = pd.read_csv('net-meat-production-in-nepal-by-district.csv')
+df4 = pd.read_csv('production-of-cotton-in-nepal-by-district.csv')
+df5 = pd.read_csv('production-of-egg-in-nepal-by-district.csv')
+df6 = pd.read_csv('rabbit-population-in-nepal-by-district.csv')
+df7 = pd.read_csv('wool-production-in-nepal-by-district.csv')
+df8 = pd.read_csv('yak-nak-chauri-population-in-nepal-by-district.csv')
+provincedf = pd.read_excel('Province.xlsx')
+
+#### Defining functions to visualize outliers in the dataset
+
+# Defining a function to visualize the outliers
+def outliersGraph(df):
+    x = df['DISTRICT']
+    for col in df.columns.values:
+        if ((col == 'DISTRICT' or col == 'PROVINCE' or col == 'index')):
+            pass
+        else:
+            y = df[col]
+            plt.scatter(x,y)
+            plt.xlabel('DISTRICT')
+            plt.ylabel(col)
+            plt.show()
+
+# Defining a function to check the outliers...
+def outliersData(df, column, outlier_value):
+    for i in range (df.shape[0]):
+        if df[column][i] > outlier_value:
+            print(f"{column} in {df['DISTRICT'][i]} is: {df[column][i]}")
+
+### Pre processing the dataset before merging to get relevant info
+
+#### Viewing the first five and the last five rows in the dataset
+
+df1.head()
+
+df1.tail()
+
+### Checking MISSING values in the first dataset
+
+df1.isnull().sum()
+# It is clear that there is no any missing values in the first datatset
+
+### Checking DUPLICATED values in the first dataset
+
+# if there is any duplicated data, then True will be printed
+if (df1.duplicated().any() == True):
+    print(True)
+
+### Checking the OUTLIERS
+
+# Using the function defined above, we can create the scatter plot to check if there is any outliers
+outliersGraph(df1)
+
+# From the above graph, it seems like there are two outliers in the dataset where number of horses are greater than 10000..
+outliersData(df1, 'Horses/Asses', 10000)
+
+# Here the number of horses/asses seems to be valid in MW.Region but MW.Region is a development region and not a district, so it will be dropped soon.
+# Whereas The Total row is the sum of all the rows, so it needs to be dropped.
+
+### DROPING the last row, since it is the total of the rows, it hinders the model so we need to remove it
+
+df1.drop(df1.tail(1).index, inplace=True)
+df1.tail()
+
+### SUMMARY table of the dataset
+
+# the describe method of the pandas library generates a table with summary of the numerical columns (by default, but when include is set to 'all', it
+# creates summary table for all data types)
+df1.describe(include='all')
+
+### Similarly performing the preprocessing method with SECOND dataset
+
+#### Viewing the first five and the last five rows in the dataset
+
+df2.head()
+
+df2.tail()
+
+### Checking MISSING values in the second dataset
+
+
+df2.isnull().sum()
+
+### DROPING the null value as the row with null value is the sum of the values.
+
+df2.dropna(inplace=True)
+df2
+
+### Checking DUPLICATED values in the second dataset
+
+if (df2.duplicated().any() == True):
+    print(True)
+
+### CHECKING the outliers
+
+outliersGraph(df2)
+
+# To be more specific on outliers, the previously defined function 'outliersData' has been used with parameters as the dataset itself, the column in
+# which outliers needs to be checked and the outlier data range above which outliers lie.
+
+outliersData(df2, 'MILKING  COWS NO.', 200000)
+
+outliersData(df2, 'MILKING  BUFFALOES NO.', 300000)
+
+outliersData(df2, 'COW MILK', 125000)
+
+outliersData(df2, 'BUFF MILK', 250000)
+
+outliersData(df2, 'TOTAL MILK PRODUCED', 300000)
+
+### Summary of The Dataset
+
+df2.describe(include='all')
+
+### Similarly performing the preprocessing method with THIRD dataset
+
+#### Viewing the first five and the last five rows in the dataset
+
+print(f"First 5 values are:\n {df3.head()}\n")
+print(f"Last 5 values are:\n {df3.tail()}")
+
+### Checking MISSING values in the third dataset
+
+
+df3.isnull().sum()
+
+### Checking DUPLICATED values in the third dataset
+
+if (df3.duplicated().any()):
+    print(True)
+
+### Checking the OUTLIERS
+
+outliersGraph(df3)
+
+outliersData(df3, 'BUFF', 75000)
+
+outliersData(df3, 'MUTTON', 1500)
+
+outliersData(df3, 'CHEVON', 20000)
+
+outliersData(df3, 'PORK ', 12500)
+
+outliersData(df3, 'CHICKEN', 30000)
+
+outliersData(df3, 'DUCK MEAT', 100)
+
+outliersData(df3, 'TOTAL MEAT', 120000)
+
+### DROPING the last row, since it is the total of the rows, it hinders the model so we need to remove it
+
+df3.drop(df3.tail(1).index, inplace=True)
+df3
+
+### SUMMARY table of the dataset
+
+df3.describe(include='all')
+
+### Similarly performing the preprocessing method with FOURTH dataset
+
+#### Viewing the first five and the last five rows in the dataset
+
+print(f"First 5 values are:\n {df4.head()}\n")
+print(f"Last 5 values are:\n {df4.tail()}")
+
+### Checking MISSING values in the fourth dataset
+
+df4.isnull().sum()
+
+### Checking DUPLICATED values in the fourth dataset
+
+if (df4.duplicated().any()):
+    print(True)
+
+### Checking the OUTLIERS
+
+outliersGraph(df4)
+
+outliersData(df4, 'AREA (Ha.)', 120)
+
+outliersData(df4, 'PROD. (Mt.)', 80)
+
+outliersData(df4, 'YIELD Kg/Ha', 1200)
+
+### DROPING the last row, since it is the total of the rows, it hinders the model so we need to remove it
+
+df4.drop(df4.tail(1).index, inplace=True)
+df4
+
+### SUMMARY table of the dataset
+
+df4.describe(include='all')
+
+### Similarly performing the preprocessing method with FIFTH dataset
+
+#### Viewing the first five and the last five rows in the dataset
+
+print(f"First 5 values are:\n {df5.head()}\n")
+print(f"Last 5 values are:\n {df5.tail()}")
+
+### Checking Missing values in the fifth dataset
+
+df5.isnull().sum()
+
+### Checking Duplicate values in the fifth dataset
+
+if (df5.duplicated().any()):
+    print(True)
+
+### Checking the OUTLIERS
+
+outliersGraph(df5)
+
+outliersData(df5, 'LAYING HEN', 8000000)
+
+outliersData(df5, 'LAYING DUCK', 75000)
+
+outliersData(df5, 'HEN EGG', 800000)
+
+outliersData(df5, 'DUCK EGG', 6000)
+
+outliersData(df5, 'TOTAL EGG', 800000)
+
+### DROPING the last row, since it is the total of the rows, it hinders the model so we need to remove it
+
+df5.drop(df5.tail(1).index, inplace=True)
+df5
+
+### SUMMARY table of the dataset
+
+df5.describe(include='all')
+
+### Similarly performing the preprocessing method with SIXTH dataset
+
+#### Viewing the first five and the last five rows in the dataset
+
+print(f"First 5 values are:\n {df6.head()}\n")
+print(f"Last 5 values are:\n {df6.tail()}")
+
+### Checking MISSING values in the sixth dataset
+
+df6.isnull().sum()
+
+### Checking DUPLICATED values in the sixth dataset
+
+
+if (df6.duplicated().any()):
+    print(True)
+
+### Checking the OUTLIERS
+
+outliersGraph(df6)
+
+outliersData(df6, 'Rabbit', 12500)
+
+### DROPING the last row, since it is the total of the rows, it hinders the model so we need to remove it
+
+df6.drop(df6.tail(1).index, inplace=True)
+df6.tail()
+
+### SUMMARY table of the dataset
+
+df6.describe(include='all')
+
+### Similarly performing the preprocessing method with SEVENTH dataset
+
+
+#### Viewing the first five and the last five rows in the dataset
+
+print(f"First 5 values are:\n {df7.head()}\n")
+print(f"Last 5 values are:\n {df7.tail()}")
+
+### Checking MISSING values in the seventh dataset
+
+df7.isnull().sum()
+
+### Checking DUPLICATED values in the seventh dataset
+
+if (df7.duplicated().any()):
+    print(True)
+
+### Checking the OUTLIERS
+
+outliersGraph(df7)
+
+outliersData(df7, 'SHEEPS NO.', 300000)
+
+outliersData(df7, 'SHEEP WOOL PRODUCED', 200000)
+
+### DROPING the last row, since it is the total of the rows, it hinders the model so we need to remove it
+
+df7.drop(df7.tail(1).index, inplace=True)
+df7
+
+### SUMMARY table of the dataset
+
+df7.describe(include='all')
+
+### Similarly performing the preprocessing method with EIGTH dataset
+
+#### Viewing the first five and the last five rows in the dataset
+
+print(f"First 5 values are:\n {df8.head()}\n")
+print(f"Last 5 values are:\n {df8.tail()}")
+
+### Checking MISSING values in the eigth dataset
+
+df8.isnull().sum()
+
+### Checking DUPLICATED values in the eigth dataset
+
+if (df8.duplicated().any()):
+    print(True)
+
+### Checking the OUTLIERS
+
+outliersGraph(df8)
+
+outliersData(df8, 'YAK/NAK/CHAURI', 30000)
+
+### DROPING the last row, since it is the total of the rows, it hinders the model so we need to remove it
+
+df8.drop(df8.tail(1).index, inplace=True)
+df8
+
+df8.describe(include='all')
+
+### After pre processing each dataset, merging them into a single dataset...
+
+merged_dataset = (df1.merge(df2, on='DISTRICT', how='outer'))
+merged_dataset = (merged_dataset.merge(df3, on='DISTRICT', how='outer'))
+merged_dataset = (merged_dataset.merge(df4, on='DISTRICT', how='outer'))
+merged_dataset = (merged_dataset.merge(df5, on='DISTRICT', how='outer'))
+merged_dataset = (merged_dataset.merge(df6, on='DISTRICT', how='outer'))
+merged_dataset = (merged_dataset.merge(df7, on='DISTRICT', how='outer'))
+merged_dataset = (merged_dataset.merge(df8, on='DISTRICT', how='outer'))
+
+# For convenience, converting the uppercase district names to lowercase
+merged_dataset['DISTRICT'] = merged_dataset['DISTRICT'].str.lower()
+
+# Displaying the merged dataset
+merged_dataset
+# it seems like there are few districts with spelling errors representing same districts in two rows and even district with same spelling, such things
+# needs to be cleaned...
+
+### PRE PROCESSING the merged dataset
+
+### Checking the NULL values in the MERGED dataset as it may contain null values
+
+null_values_count = merged_dataset.isnull().sum()
+null_values_count
+
+### As there are 106 rows, columns with more than 50 null values would be cause ML model to bias the result. So we need to DROP it
+
+# droping the columns with more than 50 null values
+dropable_columns = null_values_count[null_values_count > 50].index.tolist()
+merged_dataset.drop(columns=dropable_columns, inplace=True)
+
+merged_dataset.isnull().sum()
+# Now no column has null value greater than 50
+
+### Checking the DUPLICATED values in the MERGED dataset
+
+if (merged_dataset.duplicated().any()):
+    print(True)
+
+### As there could be same districts with different spellings, so to check it we can sort in alphabetical order so that it would be easy to spot
+
+dis = []
+for district in merged_dataset['DISTRICT']:
+    dis.append(district)
+dis.sort()
+dis
+
+# From this it is clear that banke, bardiya and dang has been repeated
+
+# defining a function to find the index of the district which is passed to the function
+def findIndex(district):
+    i = 0
+    count = []
+    for d in merged_dataset['DISTRICT']:
+        if d == district:
+            count.append(i)
+        i += 1
+    return (count)
+
+# defining a function to print the data of the district which is passed to the function
+def dataInDistrict(district):
+    for i in findIndex(district):
+        print(f"\nDisplaying the data of the district {district}")
+        print(merged_dataset.loc[i, :])
+
+#### Checking the data of the repeated ditrcits
+
+repeatedDistricts = ['banke', 'bardiya', 'dang']
+for repeatedDistrict in repeatedDistricts:
+    dataInDistrict(repeatedDistrict)
+
+### Similarly, Checking the data of the misspelled ditrcits
+
+misSpelledDistricts = ['sankhuwasabha', 'sankhuwashava', 'terathum', 'terhathum', 'ramechap', 'ramechhap']
+for misSpelledDistrict in misSpelledDistricts:
+    dataInDistrict(misSpelledDistrict)
+
+### DROPPING the row with NULL values whose district is repeated
+
+# defining a list indicesToDrop to store the indices of the districts which is to be dropped 
+indicesToDrop = [103, 104, 102]
+
+# Dropping the rows with NULL values and repeated districts
+for indice in indicesToDrop:
+    merged_dataset.drop(indice, axis=0, inplace=True)
+
+### MERGING the misspelled districts
+
+# Renaming the district names so that it can be merged
+
+merged_dataset.at[1,'DISTRICT']='sankhuwasabha'
+merged_dataset.at[101,'DISTRICT']='sankhuwasabha'
+
+merged_dataset.at[5,'DISTRICT']='terathum'
+merged_dataset.at[60,'DISTRICT']='terathum'
+
+merged_dataset.at[71,'DISTRICT']='ramechhap'
+merged_dataset.at[105,'DISTRICT']='ramechhap'
+
+merged_dataset = merged_dataset.groupby("DISTRICT").sum().reset_index()
+merged_dataset
+
+### Now the dataset is clear from misspelled and repeated districts, but there are DEVELOPMENT REGIONS which needs to be dropped.
+
+# From the above code, where values of districts was displayed in alphabetical order, copying and storing the
+# development regions in the variable development_regions
+
+development_regions = ['c. region', 'c.hills', 'c.mountain','c.region','c.terai','e. region', 'e.hills', 'e.mountain', 'e.region', 'e.terai',
+                       'fw. region', 'fw.hills', 'fw.mountain', 'fw.region', 'fw.terai','mw. region', 'mw.hills', 'mw.mountain', 'mw.region',
+                       'mw.terai', 'w. region', 'w.hills', 'w.mountain', 'w.region', 'w.terai']
+# Creating the list indices to store indice of the rows with development regions using the previously defined function findIndex 
+indices = []
+for development_region in development_regions:
+    indices.append(findIndex(development_region))
+
+### DROPING the rows with development regions
+
+for indice in indices:
+    merged_dataset.drop(indice, axis=0, inplace=True)
+
+merged_dataset
+
+### ADDING PROVINCE column on the basis of districts
+
+merged_dataset = merged_dataset.merge(provincedf, on='DISTRICT', how='outer')
+merged_dataset
+
+### Checking the NULL values in the merged dataset
+
+merged_dataset.isnull().sum()
+
+### Checking the OUTLIERS in the MERGED DATASET
+
+outliersGraph(merged_dataset)
+
+# For convenience, displaying the name of columns
+merged_dataset.columns.values
+
+### Similar to the dataframe df1, df2, ... checking the outliers in the final dataset
+
+outliersData(merged_dataset, 'MILKING  COWS NO.', 40000)
+
+outliersData(merged_dataset, 'COW MILK', 35000)
+
+outliersData(merged_dataset, 'BUFF MILK', 40000)
+
+outliersData(merged_dataset, 'MUTTON', 160)
+
+outliersData(merged_dataset, 'CHEVON', 2500)
+
+outliersData(merged_dataset, 'CHICKEN', 4000)
+
+outliersData(merged_dataset, 'TOTAL MEAT', 10000)
+
+outliersData(merged_dataset, 'LAYING HEN', 1000000)
+
+outliersData(merged_dataset, 'LAYING DUCK', 15000)
+
+outliersData(merged_dataset, 'HEN EGG', 100000)
+
+outliersData(merged_dataset, 'DUCK EGG', 1500)
+
+outliersData(merged_dataset, 'TOTAL EGG', 100000)
+
+outliersData(merged_dataset, 'SHEEPS NO.', 50000)
+
+outliersData(merged_dataset, 'SHEEP WOOL PRODUCED', 35000)
+
+#### As the OUTLIERS seems to be valid, it can be left as it is
+
+### CLEAN dataset
+
+cleaned_dataset = merged_dataset.copy()
+cleaned_dataset
+
+## SUMMARY of the cleaned dataset
+
+cleaned_dataset.describe(include='all')
+
+
+# In the summary table below,
+# 1) The rows count, mean, std, min, max and, lower, mid and upper percentiles are for numeric data types
+# 2) The rows  count, unique, top, and freq are for object data types
+
+# -> The count row has information on how many values a column has.
+# -> The unique row has how many unique value is present in the column
+# -> The top row has the most common value. In the given dataset, there is rarely any value that is repeated.
+# -> The freq row has the frequency of how many times the most repeated value has occured or is present.
+# -> The mean row has the average of the column
+# -> The std row has the standard deviation of the column
+# -> The min row has the least value in the column.
+# -> The 25% row has the lower percentile value of the column.
+# -> The 50% row has the mid percentile value of the column.
+# -> The 75% row has the upper percentile value of the column.
+# -> The max row has the highest value in the column.
+
+### CORRELATION MATRIX
+
+# For better analysis separating the numeric and categorical data
+df_numerical_features = cleaned_dataset.select_dtypes(include='number')
+df_categorical_features = cleaned_dataset.select_dtypes(include='category')
+
+# creating the correlation matrix on the numerical columns
+correlation_matrix = df_numerical_features.corr()
+correlation_matrix
+
+#### Representing it in better visual way:
+
+# sns.heatmap(correlation_matrix, cmap="Greens", xticklabels=True, yticklabels=True)
+f,ax = plt.subplots(figsize=(18, 18))
+sns.heatmap(correlation_matrix, annot=True, linewidths=.5, fmt= '.1f',ax=ax, cmap="Greens")
+
+# Defining a function to calculate the correlation between two columns
+def corr(col1, col2):
+    correlation = df_numerical_features[col1].corr(df_numerical_features[col2])
+    print(f"Correlation between {col1} and {col2} is: {round(correlation,2)}")
+
+
+# Displaying few of the correlations
+
+corr('MILKING  COWS NO.','COW MILK')
+corr('Horses/Asses', 'PORK ')
+corr('TOTAL EGG', 'SHEEPS NO.')
+corr('SHEEPS NO.', 'SHEEP WOOL PRODUCED')
+corr('LAYING HEN', 'TOTAL EGG')
+corr('CHEVON', 'CHEVON')
+corr('TOTAL MEAT', 'Horses/Asses')
+corr('TOTAL MEAT', 'LAYING HEN')
+
+# The correlation between MILKING  COWS NO. and COW MILK is 0.9 which means that there is very high positive corelation.
+# The correlation between Horses/Asses and PORK  is: -0.24 which means that there is negligible negative correlation.
+# The correlation between TOTAL EGG and SHEEPS NO. is: -0.12 which means that there is negligible negative correlation.
+# The correlation between SHEEPS NO. and SHEEP WOOL PRODUCED is: 1.0 which means that there is very high positive corelation.
+# The correlation between LAYING HEN and TOTAL EGG is: 0.96 which means that there is very high positive corelation.
+# The correlation between CHEVON and CHEVON is: 1.0 which means that there is very high positive corelation.
+# The correlation between TOTAL MEAT and Horses/Asses is: -0.36 which means that there is low negative corelation.
+# The Correlation between TOTAL MEAT and LAYING HEN is: 0.74 which means high positive correlation.
+
+### To display the name of the district along with the production and count the number of districts, defining a function
+
+def productionOverAvg(column):
+    meanProduction = cleaned_dataset[column].describe().loc['mean']
+    count = 0
+    for i in range(cleaned_dataset.shape[0]):
+         if cleaned_dataset[column][i] >= meanProduction:
+             print(f'{cleaned_dataset["DISTRICT"][i]}: {cleaned_dataset[column][i]}')
+             count = count+1
+    print(f"\nIn {count} districts Production is greater than or equal to average production")
+
+### List and count the districts where the cows' milk production >= average production.
+
+# To dsiplay the districts where cow milk production is equal to or greater than the average production
+print("Cow Milk production in Districts where cow milk production is greater than or equal to average production is:\n")
+productionOverAvg("COW MILK")
+
+### List and count districts where milk production from cows and buffaloes >= average production.
+
+# To dsiplay the districts where cow and buffaloe milk production is equal to or greater than the average production
+print("Total Milk production in Districts where Cow milk and Buffaloe milk production is greater than or equal to average production is:\n")
+productionOverAvg("TOTAL MILK PRODUCED")
+
+### SPLITTING the dataset
+
+# Extracting the columns for analysis
+buff = cleaned_dataset['BUFF']
+meat_class = pd.cut(cleaned_dataset['TOTAL MEAT'], bins=3, labels=["Low", "Medium", "High"])
+
+# Splitting the dataset into train test
+x_train, x_test, y_train, y_test = train_test_split(buff, meat_class, test_size=0.2, random_state=89)
+
+# Re-shaping the x values into 2D array
+x_train = x_train.values.reshape(-1,1)
+x_test = x_test.values.reshape(-1,1)
+
+### Creating a model using CLASSIFICATION model: LOGISTIC Regression
+
+# Creating a model using Logistic regression
+clf = LogisticRegression()
+
+# Fitting the training values into the model
+clf.fit(x_train, y_train)
+
+# Predicting the values of y_test on the basis of x_test
+predictions = clf.predict(x_test)
+
+### Evaluating performance of the model using metrics: ACCURACY, PRECISION, RECALL SCORE
+
+# Calculating the accuracy of the model
+acc = accuracy_score(y_test, predictions)
+print("Logistic Regression model accuracy (in %):", acc*100)
+
+# Calculating the precision of the model
+precision = precision_score(y_test, predictions, average=None, zero_division=0)
+print("Logistic Regression model precision:", precision)
+
+# Calculating the recall score of the model
+recallScore = recall_score(y_test, predictions, average=None)
+print("Logistic Regression model recall score:", recallScore)
+
+### SAVING the clean dataset
+
+# Saving the cleaned dataset to the project folder
+cleaned_dataset.to_csv('cleaned_dataset.csv', index=False)
+
